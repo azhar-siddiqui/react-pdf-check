@@ -160,17 +160,6 @@ const rows: Row[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/*  DERIVED SUMMARY                                                            */
-/* -------------------------------------------------------------------------- */
-
-const testRows = rows.filter(
-  (r): r is Extract<Row, { type: "test" }> => r.type === "test",
-);
-const totalTests = testRows.length;
-const outOfRange = testRows.filter((r) => r.flag !== "").length;
-const withinRange = totalTests - outOfRange;
-
-/* -------------------------------------------------------------------------- */
 /*  DESIGN TOKENS                                                              */
 /* -------------------------------------------------------------------------- */
 
@@ -336,7 +325,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 5,
+    height: 15,
     backgroundColor: colors.accent,
   },
 
@@ -436,28 +425,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginTop: 2,
   },
-
-  /* summary strip */
-  summaryRow: { flexDirection: "row", marginBottom: 8 },
-  summaryCard: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-  },
-  summaryGap: { marginRight: 8 },
-  summaryValue: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 14,
-    color: colors.brand,
-    marginRight: 8,
-  },
-  summaryLabel: { fontSize: 8, color: colors.textMuted },
-
   /* table */
   table: { width: "100%", marginBottom: 8 },
   tableHeader: {
@@ -526,28 +493,6 @@ const styles = StyleSheet.create({
     fontSize: 7,
     color: colors.white,
   },
-
-  legend: { marginTop: 5, paddingHorizontal: 10 },
-  legendText: { fontSize: 7, color: colors.textMuted },
-
-  /* clinical note */
-  noteBox: {
-    borderWidth: 1,
-    borderColor: colors.dangerBorder,
-    backgroundColor: colors.dangerSoft,
-    borderRadius: 5,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    marginBottom: 8,
-  },
-  noteTitle: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 7.5,
-    color: colors.danger,
-    letterSpacing: 0.4,
-    marginBottom: 2,
-  },
-  noteBody: { fontSize: 8.5, color: colors.textMain, lineHeight: 1.4 },
 
   /* end + signatures */
   endRow: { flexDirection: "row", alignItems: "center" },
@@ -621,29 +566,6 @@ const MetaRow = ({
   </View>
 );
 
-const SummaryCard = ({
-  value,
-  label,
-  color,
-  last = false,
-}: {
-  value: string | number;
-  label: string;
-  color?: string;
-  last?: boolean;
-}) => (
-  <View
-    style={last ? styles.summaryCard : [styles.summaryCard, styles.summaryGap]}
-  >
-    <Text
-      style={color ? [styles.summaryValue, { color }] : styles.summaryValue}
-    >
-      {value}
-    </Text>
-    <Text style={styles.summaryLabel}>{label}</Text>
-  </View>
-);
-
 /* -------------------------------------------------------------------------- */
 /*  REPORT                                                                     */
 /* -------------------------------------------------------------------------- */
@@ -710,22 +632,6 @@ export default function ModernCBCReport() {
           </View>
         </View>
 
-        {/* ------------------------------ SUMMARY ----------------------------- */}
-        <View style={styles.summaryRow}>
-          <SummaryCard value={totalTests} label="Parameters tested" />
-          <SummaryCard
-            value={withinRange}
-            label="Within reference range"
-            color={colors.success}
-          />
-          <SummaryCard
-            value={outOfRange}
-            label="Outside reference range"
-            color={outOfRange > 0 ? colors.danger : colors.success}
-            last
-          />
-        </View>
-
         {/* ------------------------------- TABLE ------------------------------ */}
         <View style={styles.table}>
           <View style={styles.tableHeader}>
@@ -786,22 +692,6 @@ export default function ModernCBCReport() {
               </View>
             );
           })}
-
-          <View style={styles.legend}>
-            <Text style={styles.legendText}>
-              H = Above reference range L = Below reference range
-            </Text>
-          </View>
-        </View>
-
-        {/* ---------------------------- CLINICAL NOTE ------------------------- */}
-        <View style={styles.noteBox}>
-          <Text style={styles.noteTitle}>CLINICAL NOTE</Text>
-          <Text style={styles.noteBody}>
-            Total leucocyte count is mildly elevated (leucocytosis). All other
-            parameters are within their reference intervals. Please correlate
-            clinically.
-          </Text>
         </View>
 
         {/* ------------------------ END OF REPORT + SIGN ---------------------- */}
