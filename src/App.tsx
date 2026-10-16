@@ -1,12 +1,20 @@
-import { PDFViewer } from "@react-pdf/renderer";
-import Report from "./components/common/document";
+import { lazy, Suspense } from "react";
+import Loader from "./components/common/loader";
+
+const PdfContainer = lazy(() => import("./components/common/pdf-container"));
 
 function App() {
   return (
     <div className="w-full h-screen">
-      <PDFViewer width="100%" height="100%">
-        <Report />
-      </PDFViewer>
+      <Suspense
+        fallback={
+          <div className="w-full h-full flex items-center justify-center">
+            <Loader />
+          </div>
+        }
+      >
+        <PdfContainer />
+      </Suspense>
     </div>
   );
 }

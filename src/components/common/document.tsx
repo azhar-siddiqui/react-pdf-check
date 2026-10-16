@@ -570,7 +570,7 @@ const MetaRow = ({
 /*  REPORT                                                                     */
 /* -------------------------------------------------------------------------- */
 
-export default function ModernCBCReport() {
+export default function Report() {
   return (
     <Document
       title={`${patient.name} - CBC Report`}
