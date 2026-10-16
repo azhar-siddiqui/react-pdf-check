@@ -8,6 +8,18 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     chunkSizeWarningLimit: 2500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("@react-pdf/renderer") ||
+            id.includes("yoga-layout")
+          ) {
+            return "pdf-generator-engine";
+          }
+        },
+      },
+    },
   },
   resolve: {
     alias: {

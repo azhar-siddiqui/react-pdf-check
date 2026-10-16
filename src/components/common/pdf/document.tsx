@@ -4,6 +4,7 @@ import {
   G,
   Page,
   Path,
+  PDFViewer,
   Rect,
   StyleSheet,
   Svg,
@@ -318,6 +319,7 @@ const styles = StyleSheet.create({
     paddingBottom: 54,
     paddingHorizontal: 36,
     fontSize: 9.5,
+    margin: 0,
   },
 
   accentBar: {
@@ -572,160 +574,168 @@ const MetaRow = ({
 
 export default function Report() {
   return (
-    <Document
-      title={`${patient.name} - CBC Report`}
-      author={lab.name}
-      subject="Complete Blood Count"
+    <PDFViewer
+      style={{
+        width: "100%",
+        height: "100%",
+        border: "none",
+      }}
     >
-      {/* Fits on a single A4 page by design (tight spacing). */}
-      <Page size="A4" style={styles.page}>
-        <View style={styles.accentBar} />
+      <Document
+        title={`${patient.name} - CBC Report`}
+        author={lab.name}
+        subject="Complete Blood Count"
+      >
+        {/* Fits on a single A4 page by design (tight spacing). */}
+        <Page size="A4" style={styles.page}>
+          <View style={styles.accentBar} />
 
-        {/* ------------------------------ HEADER ------------------------------ */}
-        <View style={styles.header}>
-          <View style={styles.brandWrap}>
-            <Logo />
-            <View style={styles.brandText}>
-              <Text style={styles.brandName}>{lab.name}</Text>
-              <Text style={styles.brandTagline}>{lab.tagline}</Text>
-              <Text style={styles.brandContact}>
-                {lab.address} | {lab.contact}
+          {/* ------------------------------ HEADER ------------------------------ */}
+          <View style={styles.header}>
+            <View style={styles.brandWrap}>
+              <Logo />
+              <View style={styles.brandText}>
+                <Text style={styles.brandName}>{lab.name}</Text>
+                <Text style={styles.brandTagline}>{lab.tagline}</Text>
+                <Text style={styles.brandContact}>
+                  {lab.address} | {lab.contact}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.qrWrap}>
+              <View style={styles.qrFrame}>
+                <QRCodeDummy size={44} />
+              </View>
+              <Text style={styles.qrCaption}>SCAN TO VERIFY</Text>
+            </View>
+          </View>
+
+          {/* ------------------------- PATIENT SECTION -------------------------- */}
+          <View style={styles.patientCard}>
+            <View style={styles.patientCol}>
+              <MetaRow label="PATIENT NAME" value={patient.name} highlight />
+              <MetaRow label="AGE / GENDER" value={patient.ageGender} />
+              <MetaRow label="PATIENT ID" value={patient.patientId} />
+              <MetaRow label="REFERRED BY" value={patient.referredBy} last />
+            </View>
+            <View style={styles.patientDivider} />
+            <View style={styles.patientCol}>
+              <MetaRow label="SAMPLE" value={patient.sampleType} />
+              <MetaRow label="COLLECTED" value={patient.collected} />
+              <MetaRow label="RECEIVED" value={patient.received} />
+              <MetaRow label="REPORTED" value={patient.reported} last />
+            </View>
+          </View>
+
+          {/* ---------------------- REPORT TITLE + BARCODE ---------------------- */}
+          <View style={styles.titleRow}>
+            <View>
+              <Text style={styles.reportTitle}>Complete Blood Count (CBC)</Text>
+              <Text style={styles.reportSubtitle}>
+                Automated Hematology Analyzer
               </Text>
             </View>
-          </View>
-          <View style={styles.qrWrap}>
-            <View style={styles.qrFrame}>
-              <QRCodeDummy size={44} />
+            <View style={styles.barcodeWrap}>
+              <BarcodeDummy width={130} height={20} />
+              <Text style={styles.barcodeText}>{patient.sampleId}</Text>
             </View>
-            <Text style={styles.qrCaption}>SCAN TO VERIFY</Text>
-          </View>
-        </View>
-
-        {/* ------------------------- PATIENT SECTION -------------------------- */}
-        <View style={styles.patientCard}>
-          <View style={styles.patientCol}>
-            <MetaRow label="PATIENT NAME" value={patient.name} highlight />
-            <MetaRow label="AGE / GENDER" value={patient.ageGender} />
-            <MetaRow label="PATIENT ID" value={patient.patientId} />
-            <MetaRow label="REFERRED BY" value={patient.referredBy} last />
-          </View>
-          <View style={styles.patientDivider} />
-          <View style={styles.patientCol}>
-            <MetaRow label="SAMPLE" value={patient.sampleType} />
-            <MetaRow label="COLLECTED" value={patient.collected} />
-            <MetaRow label="RECEIVED" value={patient.received} />
-            <MetaRow label="REPORTED" value={patient.reported} last />
-          </View>
-        </View>
-
-        {/* ---------------------- REPORT TITLE + BARCODE ---------------------- */}
-        <View style={styles.titleRow}>
-          <View>
-            <Text style={styles.reportTitle}>Complete Blood Count (CBC)</Text>
-            <Text style={styles.reportSubtitle}>
-              Automated Hematology Analyzer
-            </Text>
-          </View>
-          <View style={styles.barcodeWrap}>
-            <BarcodeDummy width={130} height={20} />
-            <Text style={styles.barcodeText}>{patient.sampleId}</Text>
-          </View>
-        </View>
-
-        {/* ------------------------------- TABLE ------------------------------ */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.th, styles.colTest]}>TEST DESCRIPTION</Text>
-            <Text style={[styles.th, styles.colResult]}>RESULT</Text>
-            <Text style={[styles.th, styles.colFlag]}>FLAG</Text>
-            <Text style={[styles.th, styles.colUnit]}>UNIT</Text>
-            <Text style={[styles.th, styles.colRef]}>REFERENCE INTERVAL</Text>
           </View>
 
-          {rows.map((row, idx) => {
-            if (row.type === "category") {
+          {/* ------------------------------- TABLE ------------------------------ */}
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.th, styles.colTest]}>TEST DESCRIPTION</Text>
+              <Text style={[styles.th, styles.colResult]}>RESULT</Text>
+              <Text style={[styles.th, styles.colFlag]}>FLAG</Text>
+              <Text style={[styles.th, styles.colUnit]}>UNIT</Text>
+              <Text style={[styles.th, styles.colRef]}>REFERENCE INTERVAL</Text>
+            </View>
+
+            {rows.map((row, idx) => {
+              if (row.type === "category") {
+                return (
+                  <View key={idx} style={styles.categoryRow}>
+                    <Text style={styles.categoryText}>
+                      {row.label.toUpperCase()}
+                    </Text>
+                  </View>
+                );
+              }
+
+              const abnormal = row.flag !== "";
+
               return (
-                <View key={idx} style={styles.categoryRow}>
-                  <Text style={styles.categoryText}>
-                    {row.label.toUpperCase()}
+                <View
+                  key={idx}
+                  style={
+                    abnormal
+                      ? [styles.dataRow, styles.dataRowAbnormal]
+                      : styles.dataRow
+                  }
+                >
+                  <Text style={[styles.testName, styles.colTest]}>
+                    {row.test}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.resultText,
+                      styles.colResult,
+                      abnormal ? styles.resultAbnormal : {},
+                    ]}
+                  >
+                    {row.result}
+                  </Text>
+                  <View style={styles.colFlag}>
+                    {abnormal ? (
+                      <View style={styles.flagPill}>
+                        <Text style={styles.flagPillText}>{row.flag}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <Text style={[styles.unitText, styles.colUnit]}>
+                    {row.unit}
+                  </Text>
+                  <Text style={[styles.refText, styles.colRef]}>
+                    {row.reference}
                   </Text>
                 </View>
               );
-            }
-
-            const abnormal = row.flag !== "";
-
-            return (
-              <View
-                key={idx}
-                style={
-                  abnormal
-                    ? [styles.dataRow, styles.dataRowAbnormal]
-                    : styles.dataRow
-                }
-              >
-                <Text style={[styles.testName, styles.colTest]}>
-                  {row.test}
-                </Text>
-                <Text
-                  style={[
-                    styles.resultText,
-                    styles.colResult,
-                    abnormal ? styles.resultAbnormal : {},
-                  ]}
-                >
-                  {row.result}
-                </Text>
-                <View style={styles.colFlag}>
-                  {abnormal ? (
-                    <View style={styles.flagPill}>
-                      <Text style={styles.flagPillText}>{row.flag}</Text>
-                    </View>
-                  ) : null}
-                </View>
-                <Text style={[styles.unitText, styles.colUnit]}>
-                  {row.unit}
-                </Text>
-                <Text style={[styles.refText, styles.colRef]}>
-                  {row.reference}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* ------------------------ END OF REPORT + SIGN ---------------------- */}
-        <View style={styles.endRow}>
-          <View style={styles.endLine} />
-          <Text style={styles.endText}>END OF REPORT</Text>
-          <View style={styles.endLine} />
-        </View>
-
-        <View style={styles.signatures}>
-          <View style={styles.sigBlock}>
-            <Text style={styles.sigName}>David Chen</Text>
-            <Text style={styles.sigTitle}>Senior Medical Technologist</Text>
+            })}
           </View>
-          <View style={styles.sigBlock}>
-            <Text style={styles.sigName}>Dr. Elena Rostova, MD</Text>
-            <Text style={styles.sigTitle}>Chief Pathologist</Text>
-          </View>
-        </View>
 
-        {/* ------------------------------ FOOTER ------------------------------ */}
-        <View style={styles.footer}>
-          <View style={[styles.footerLine, styles.footerLineGap]}>
-            <Text style={styles.footerBold}>{lab.name}</Text>
-            <Text style={styles.footerText}>{lab.accreditation}</Text>
+          {/* ------------------------ END OF REPORT + SIGN ---------------------- */}
+          <View style={styles.endRow}>
+            <View style={styles.endLine} />
+            <Text style={styles.endText}>END OF REPORT</Text>
+            <View style={styles.endLine} />
           </View>
-          <View style={styles.footerLine}>
-            <Text style={styles.footerText}>
-              Electronically generated report. No physical signature required.
-            </Text>
-            <Text style={styles.footerText}>Page 1 of 1</Text>
+
+          <View style={styles.signatures}>
+            <View style={styles.sigBlock}>
+              <Text style={styles.sigName}>David Chen</Text>
+              <Text style={styles.sigTitle}>Senior Medical Technologist</Text>
+            </View>
+            <View style={styles.sigBlock}>
+              <Text style={styles.sigName}>Dr. Elena Rostova, MD</Text>
+              <Text style={styles.sigTitle}>Chief Pathologist</Text>
+            </View>
           </View>
-        </View>
-      </Page>
-    </Document>
+
+          {/* ------------------------------ FOOTER ------------------------------ */}
+          <View style={styles.footer}>
+            <View style={[styles.footerLine, styles.footerLineGap]}>
+              <Text style={styles.footerBold}>{lab.name}</Text>
+              <Text style={styles.footerText}>{lab.accreditation}</Text>
+            </View>
+            <View style={styles.footerLine}>
+              <Text style={styles.footerText}>
+                Electronically generated report. No physical signature required.
+              </Text>
+              <Text style={styles.footerText}>Page 1 of 1</Text>
+            </View>
+          </View>
+        </Page>
+      </Document>
+    </PDFViewer>
   );
 }
